@@ -97,7 +97,15 @@ app.get("/api/users/:_id/logs", async (req, res) => {
           : undefined,
         to: req.query?.to ? new Date(req.query.to).toDateString() : undefined,
         count: limitExercises.length,
-        log: [...limitExercises],
+        log: [...limitExercises.map(exercise => {
+            exercise = {
+              description: exercise.description,
+              duration: exercise.duration,
+              date: exercise.date
+            }
+            return exercise;
+          }
+        )],
       });
     } else {
       res.status(200).json({
@@ -108,7 +116,15 @@ app.get("/api/users/:_id/logs", async (req, res) => {
           : undefined,
         to: req.query?.to ? new Date(req.query.to).toDateString() : undefined,
         count: filterExercises.length,
-        log: [...filterExercises],
+        log: [...filterExercises.map(exercise => {
+            exercise = {
+              description: exercise.description,
+              duration: exercise.duration,
+              date: exercise.date
+            }
+            return exercise;
+          }
+        )],
       });
     }
   } catch (error) {
