@@ -12,7 +12,10 @@ const ExerciseSchema = mongoose.Schema(
             required: true,
         },
 
-        date: Date,
+        date: {
+            type: Date,
+            default: Date.now
+        },
 
         description: {
             type: String,

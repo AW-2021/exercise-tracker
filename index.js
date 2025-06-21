@@ -56,11 +56,11 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
       ),
     });
     res.status(200).json({
-      _id: user._id,
       username: user.username,
-      date: exercise.date.toDateString(),
-      duration: exercise.duration,
       description: exercise.description,
+      duration: exercise.duration,
+      date: exercise.date.toDateString(),
+      _id: user._id,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -69,70 +69,45 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
 
 app.get("/api/users/:_id/logs", async (req, res) => {
   try {
-    const user = await User.findById(req.params._id);
+    const { from, to, limit } = req.query;
+    const id = req.params._id;
+    const user = await User.findById(id);
 
     if (!user) {
-      return res.status(404).json({ message: "User not found!" });
+      res.status(404).json({ message: "User not found!"});
     }
 
-    const fromDate = new Date(req.query.from);
-    const toDate = new Date(req.query.to);
-    if (
-      (req.query.from && fromDate.toString() === "Invalid Date") ||
-      (req.query.to && toDate.toString() === "Invalid Date")
-    ) {
-      return res.json({ error: "Invalid Date" });
+    let dateObj = {};
+
+    if (from) {
+      dateObj["$gte"] = new Date(from);
+    }
+    if (to) {
+      dateObj["$lte"] = new Date(to);
     }
 
-    const exercises = await Exercise.find({ _userid: user._id });
+    let filter = { _userid: id }
 
-    const from = req.query.from ? new Date(req.query.from) : null;
-    const to = req.query.to ? new Date(req.query.to) : null;
+    if (from || to) {
+      filter.date = dateObj;
+    }
 
-    const filterExercises = exercises.filter((exercise) => {
-      const date = exercise.date;
-      if (from && date < from) return false;
-      if (to && date > to) return false;
-      return true;
+    const exercises = await Exercise.find(filter).limit(+limit ?? 1000);
+
+    const log = exercises.map(exercise => ({
+      description: exercise.description,
+      duration: exercise.duration,
+      date: exercise.date.toDateString()
+    }));
+
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      count: exercises.length,
+      log
     });
 
-    if (req.query.limit) {
-      const limitExercises = filterExercises.slice(0, req.query.limit);
-      const log = limitExercises.map((exercise) => ({
-        description: exercise.description,
-        duration: exercise.duration,
-        date: exercise.date.toDateString(),
-      }));
-
-      res.status(200).json({
-        _id: user._id,
-        username: user.username,
-        from: req.query?.from
-          ? new Date(req.query.from).toDateString()
-          : undefined,
-        to: req.query?.to ? new Date(req.query.to).toDateString() : undefined,
-        count: limitExercises.length,
-        log,
-      });
-    } else {
-      const log = filterExercises.map((exercise) => ({
-        description: exercise.description,
-        duration: exercise.duration,
-        date: exercise.date.toDateString(),
-      }));
-
-      res.status(200).json({
-        _id: user._id,
-        username: user.username,
-        from: req.query?.from
-          ? new Date(req.query.from).toDateString()
-          : undefined,
-        to: req.query?.to ? new Date(req.query.to).toDateString() : undefined,
-        count: filterExercises.length,
-        log,
-      });
-    }
-  } catch (error) {
+  } catch(error) {
     res.status(500).json({ message: error.message });
   }
 });
