@@ -54,7 +54,13 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
         req.body.date === "" ? Date.now() : req.body.date
       ).toDateString(),
     });
-    res.status(200).json(exercise);
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      date: exercise.date,
+      duration: exercise.duration,
+      description: exercise.description
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
