@@ -101,8 +101,10 @@ app.get("/api/users/:_id/logs", async (req, res) => {
             exercise = {
               description: exercise.description,
               duration: exercise.duration,
-              date: exercise.date
+              date: exercise.date.toString()
             }
+            console.log(typeof exercise.date)
+            
             return exercise;
           }
         )],
@@ -120,8 +122,9 @@ app.get("/api/users/:_id/logs", async (req, res) => {
             exercise = {
               description: exercise.description,
               duration: exercise.duration,
-              date: exercise.date
+              date: exercise.date.toString()
             }
+            console.log(typeof exercise.date)
             return exercise;
           }
         )],
