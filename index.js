@@ -101,7 +101,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
             exercise = {
               description: exercise.description,
               duration: exercise.duration,
-              date: exercise.date.toString()
+              date: new Date(exercise.date).toDateString()
             }
             console.log(typeof exercise.date)
             
@@ -122,7 +122,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
             exercise = {
               description: exercise.description,
               duration: exercise.duration,
-              date: exercise.date.toString()
+              date: new Date(exercise.date).toDateString()
             }
             console.log(typeof exercise.date)
             return exercise;
